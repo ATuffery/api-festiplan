@@ -30,6 +30,10 @@ class DataBase {
         $this->charset = $charset;
     }
 
+    /**
+     * Connect to the database
+     * @return \PDO the connection to the database
+     */
     public function __connect() {
         $ds_name = "mysql:host=$this->host;port=$this->port;dbname=$this->db;charset=$this->charset";
         $options = [

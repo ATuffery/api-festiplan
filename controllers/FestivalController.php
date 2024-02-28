@@ -22,6 +22,11 @@ class FestivalController
         return $view;
     }
 
+    /**
+     * Get the details of a festival
+     * @param \PDO $pdo the database connection
+     * @return View the festival data in json format
+     */
     public function details(\PDO $pdo) {
         HttpHelper::checkMethod("GET");
 

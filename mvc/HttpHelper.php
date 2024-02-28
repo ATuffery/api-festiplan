@@ -4,9 +4,6 @@ namespace ApiFestiplan\mvc;
 
 use ApiFestiplan\utils\Error;
 
-/**
- * 
- */
 class HttpHelper {
 
     /** 
