@@ -110,7 +110,7 @@ class HttpHelper {
     public static function checkMethod(string $method)
     {
         if ($_SERVER['REQUEST_METHOD'] !== $method) {
-            Error::err(405, "Method not allowed.");
+            Error::err(405, "Méthode non autorisée.");
         }
     }
 

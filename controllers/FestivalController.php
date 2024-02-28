@@ -31,7 +31,7 @@ class FestivalController
         HttpHelper::checkMethod("GET");
 
         if (is_null(HttpHelper::getParam())) {
-            Error::err(400, "The festival id is missing.");
+            Error::err(400, "L'id du festival est manquant.");
         }
 
         $view = new View("api");

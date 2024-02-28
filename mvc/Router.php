@@ -28,7 +28,7 @@ class Router {
         if (!file_exists("controllers/$controller_name.php")
             || !method_exists("ApiFestiplan\\controllers\\" . $controller_name, $method_name)) {
 
-            Error::err(404, "The controller or the method does not exist.");
+            Error::err(404, "Le controller ou la méthode n'existe pas.");
 
         }
 
