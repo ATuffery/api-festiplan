@@ -11,7 +11,7 @@ Autoloader::autoload();
 $db = new DataBase(
     "localhost",
     3306,
-    "festiplan",
+    "",
     "root",
     "",
     "utf8mb4"
