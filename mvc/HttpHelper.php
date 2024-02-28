@@ -2,6 +2,8 @@
 
 namespace ApiFestiplan\mvc;
 
+use ApiFestiplan\utils\Error;
+
 /**
  * 
  */
@@ -101,6 +103,18 @@ class HttpHelper {
      */
     public static function getParam(int $noParam = 0):string|null {
         return self::paramGetExists($noParam) ? htmlspecialchars(self::getParams()[$noParam]) : null;
+    }
+
+    /**
+     * Check if the HTTP method used is the one expected
+     * @param string $method the method to check
+     * @return void
+     */
+    public static function checkMethod(string $method)
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== $method) {
+            Error::err(405, "Method not allowed.");
+        }
     }
 
 }

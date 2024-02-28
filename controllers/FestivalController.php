@@ -2,7 +2,9 @@
 
 namespace ApiFestiplan\controllers;
 
+use ApiFestiplan\mvc\HttpHelper;
 use ApiFestiplan\mvc\View;
+use ApiFestiplan\utils\Error;
 
 class FestivalController
 {
@@ -12,9 +14,24 @@ class FestivalController
      * @return View the data in json format
      */
     public function all(\PDO $pdo) {
+        HttpHelper::checkMethod("GET");
+
         $view = new View("api");
         $view->setVar("http_code", 200);
         $view->setVar("json", "Test");
+        return $view;
+    }
+
+    public function details(\PDO $pdo) {
+        HttpHelper::checkMethod("GET");
+
+        if (is_null(HttpHelper::getParam())) {
+            Error::err(400, "The festival id is missing.");
+        }
+
+        $view = new View("api");
+        $view->setVar("http_code", 200);
+        $view->setVar("json", HttpHelper::getParam());
         return $view;
     }
 
