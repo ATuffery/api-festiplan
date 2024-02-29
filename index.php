@@ -12,9 +12,9 @@ Autoloader::autoload();
 $db = new DataBase(
     "localhost",
     3306,
-    "",
+    "festiplanv2",
     "root",
-    "",
+    "root",
     "utf8mb4"
 );
 
