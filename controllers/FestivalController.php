@@ -47,7 +47,8 @@ class FestivalController
      * @return View the festival data in json format
      */
     public function connexion(\PDO $pdo){
-        HttpHelper::checkMethod("POST");
+//        HttpHelper::checkMethod("POST");
+        HttpHelper::checkMethod("GET");
 
         if (is_null(HttpHelper::getParam(0))) {
             Error::err(400, "Aucun identifiant n'a été envoyé.");
@@ -60,16 +61,31 @@ class FestivalController
         $login = HttpHelper::getParam(0);
         $password = HttpHelper::getParam(1);
 
-        $user = AuthService::connexion($pdo, $login, $password);
+        try {
+            $user = AuthService::connexion($pdo, $login, $password);
+        } catch (\PDOException $e) {
+            Error::err(500, "Base de donnée inacéssible. (co)");
+        }
 
         if (is_null($user) || empty($user)) {
             Error::err(401, "Identifiant ou mot de passe incorrect.");
+        } else {
+            try {
+                AuthService::addApiKey($user, $pdo);
+            } catch (\PDOException $e) {
+                var_dump($e);
+                Error::err(500, "Base de donnée inacéssible. (api)");
+            }
         }
 
         $_SESSION["user_id"] = $user["idUtilisateur"];
         $_SESSION["logged"] = true;
 
-        $this->all($pdo);
+        $view = new View("api");
+        $view->setVar("http_code", 200);
+        $view->setVar("json", $user["apiKey"]);
+
+        return $view;
     }
 
 
@@ -79,7 +95,8 @@ class FestivalController
      * @return View the festival data in json format
      */
     public function add_to_fav(\PDO $pdo) {
-        HttpHelper::checkMethod("POST");
+//        HttpHelper::checkMethod("POST");
+        HttpHelper::checkMethod("GET");
 
         if (is_null(HttpHelper::getParam(0))) {
             Error::err(400, "L'id du festival est manquant.");

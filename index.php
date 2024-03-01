@@ -21,5 +21,6 @@ $db = new DataBase(
 try {
     Router::route($db);
 } catch (\Error | \Exception $e) {
+    var_dump($e->getMessage());
     Error::err(500, "Une erreur est survenue.");
 }

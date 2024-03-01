@@ -41,7 +41,7 @@ class Router {
             try {
                 $view = $controller->$method_name($dataBase->__connect());
             } catch (\PDOException $e) {
-                Error::err(500, "Base de donnée inacéssible.");
+                Error::err(500, "Base de donnée inacessible.");
             }
         }
 
