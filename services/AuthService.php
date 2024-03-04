@@ -33,10 +33,7 @@ class AuthService {
      */
     public static function addApiKey($user, $pdo) {
 
-        $login = $user['login'];
-        $password = $user['mdp'];
-
-        $apiKeyGen = self::generateApiKey($login, $password);
+        $apiKeyGen = self::generateApiKey();
 
         $user_id = $user['idUtilisateur'];
 
@@ -53,7 +50,7 @@ class AuthService {
      * @param $password
      * @return string
      */
-    private static function generateApiKey(string $login, string $password) {
+    private static function generateApiKey() {
         return bin2hex(random_bytes(35));
     }
 }
