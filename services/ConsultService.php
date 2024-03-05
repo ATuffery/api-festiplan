@@ -3,7 +3,12 @@
 namespace services;
 
 class ConsultService {
-    public static function consultListFestival(\PDO $pdo){
+    /**
+     * Returns the list of all festivals
+     * @param \PDO $pdo
+     * @return array<array{idFestival:int, titre:string, categorie:string, description:string, dateDebut:string, dateFin:string, illustration:string}>|bool
+     */
+    public static function consultListFestival(\PDO $pdo): array|bool {
         $query = "SELECT f.idFestival, f.titre, cf.nom as categorie, f.description, f.dateDebut, f.dateFin, f.illustration 
                 FROM Festival f
                 INNER JOIN CategorieFestival cf ON f.categorie = cf.idCategorie";
@@ -12,12 +17,17 @@ class ConsultService {
 
         $stmt->execute();
 
-        $festivals = $stmt->fetchAll();
-
-        return $festivals;
+        return (array) $stmt->fetchAll();
     }
 
-    public static function consultListFavoriteFestival(\PDO $pdo, int $idUtilisateur){
+    /**
+     * Returns the list of all favorite festivals
+     * @param \PDO $pdo
+     * @param int $idUtilisateur
+     * @return array<array{idFestival:int, titre:string, categorie:string, description:string, dateDebut:string, dateFin:string, illustration:string}>|bool
+     */
+    public static function consultListFavoriteFestival(\PDO $pdo, int $idUtilisateur): array|bool
+    {
         $query = "SELECT f.idFestival, f.titre, cf.nom as categorie, f.description, f.dateDebut, f.dateFin, f.illustration 
                 FROM Festival f
                 INNER JOIN Favori ON f.idFestival = Favori.idFestival
@@ -31,9 +41,7 @@ class ConsultService {
 
         $stmt->execute();
 
-        $festivals = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-
-        return $festivals;
+        return $stmt->fetchAll();
     }
 
     /**
@@ -42,13 +50,18 @@ class ConsultService {
      * @param int $idFestival
      * @return mixed
      */
-    public static function detailsFestival(\PDO $pdo, int $idFestival){
-        $query = "SELECT * FROM Festival f
-                INNER JOIN EquipeOrganisatrice eo ON f.idFestival = eo.idFestival
-                INNER JOIN Utilisateur u ON eo.idUtilisateur = u.idUtilisateur 
-                INNER JOIN SpectacleDeFestival sdf ON f.idFestival = sdf.idFestival
-                INNER JOIN Spectacle s ON sdf.idSpectacle = s.idSpectacle
-                INNER JOIN CategorieFestival cf ON f.categorie = cf.idCategorie
+    public static function detailsFestival(\PDO $pdo, int $idFestival): mixed {
+        $query = "SELECT f.idFestival, cf.nom as categorie, f.titre, f.description, f.dateDebut, f.dateFin, f.illustration, 
+                eo.responsable, u.prenom, u.nom, 
+                s.titre as titreSpectacle, s.description as descriptionSpectacle, s.duree as dureeSpectacle, 
+                s.illustration as illustrationSpectacle, cs.nomCategorie as categorieSpectacle
+                FROM Festival f
+                LEFT JOIN EquipeOrganisatrice eo ON f.idFestival = eo.idFestival
+                LEFT JOIN Utilisateur u ON eo.idUtilisateur = u.idUtilisateur 
+                LEFT JOIN SpectacleDeFestival sdf ON f.idFestival = sdf.idFestival
+                LEFT JOIN Spectacle s ON sdf.idSpectacle = s.idSpectacle
+                LEFT JOIN CategorieSpectacle cs ON s.categorie = cs.idCategorie
+                LEFT JOIN CategorieFestival cf ON f.categorie = cf.idCategorie
                 WHERE f.idFestival = :idFestival";
 
         $stmt = $pdo->prepare($query);

@@ -6,7 +6,7 @@ use http\Exception\RuntimeException;
 
 class FavoriService {
 
-    public static function getUserId(\PDO $pdo, string $apiKey) {
+    public static function getUserId(\PDO $pdo, string $apiKey): mixed {
         $query = "SELECT idUtilisateur FROM utilisateur WHERE apiKey = :apiKey";
 
         $stmt = $pdo->prepare($query);
@@ -14,13 +14,13 @@ class FavoriService {
 
         $stmt->execute();
 
-        $userId = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $userId = (array) $stmt->fetch();
 
         return $userId["idUtilisateur"];
     }
 
 
-    public static function addFavori(\PDO $pdo, int $idFestival, int $idUser) {
+    public static function addFavori(\PDO $pdo, int $idFestival, int $idUser): void {
         $query = "INSERT INTO Favori (idUtilisateur, idFestival) VALUES (:idUtilisateur, :idFestival)";
 
         $stmt = $pdo->prepare($query);
@@ -34,7 +34,7 @@ class FavoriService {
         }
     }
 
-    public static function removeFavoris(\PDO $pdo, int $idFestival, int $idUser) {
+    public static function removeFavoris(\PDO $pdo, int $idFestival, int $idUser): void {
         $query = "DELETE FROM Favori WHERE idUtilisateur = :idUtilisateur AND idFestival = :idFestival";
 
         $stmt = $pdo->prepare($query);

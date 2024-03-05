@@ -11,7 +11,7 @@ class AuthService {
      * @param string $password
      * @return mixed
      */
-    public static function connexion(\PDO $pdo, string $login, string $password){
+    public static function connexion(\PDO $pdo, string $login, string $password): mixed {
         $query = "SELECT * FROM utilisateur WHERE login = :login AND mdp = :password";
 
         $stmt = $pdo->prepare($query);
@@ -27,11 +27,11 @@ class AuthService {
 
     /**
      * Add an API key to the user
-     * @param $user
-     * @param $pdo
+     * @param array{ idUtilisateur: int } $user the user
+     * @param \PDO $pdo the database connection
      * @return void
      */
-    public static function addApiKey($user, $pdo) {
+    public static function addApiKey(array $user, \PDO $pdo): void {
 
         $apiKeyGen = self::generateApiKey();
 
@@ -46,11 +46,9 @@ class AuthService {
 
     /**
      * Generate an API key
-     * @param $login
-     * @param $password
      * @return string
      */
-    private static function generateApiKey() {
+    private static function generateApiKey(): string {
         return bin2hex(random_bytes(35));
     }
 }
