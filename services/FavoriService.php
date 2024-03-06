@@ -6,7 +6,7 @@ use http\Exception\RuntimeException;
 
 class FavoriService {
 
-    public static function getUserId(\PDO $pdo, string $apiKey): mixed {
+    public static function getUserId(\PDO $pdo, string $apiKey): int {
         $query = "SELECT idUtilisateur FROM utilisateur WHERE apiKey = :apiKey";
 
         $stmt = $pdo->prepare($query);
@@ -16,7 +16,7 @@ class FavoriService {
 
         $userId = (array) $stmt->fetch();
 
-        return $userId["idUtilisateur"];
+        return 0 + $userId['idUtilisateur'];
     }
 
 

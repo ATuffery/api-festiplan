@@ -81,19 +81,20 @@ class ConsultService {
      * @return mixed
      */
     public static function detailsShow(\PDO $pdo, int $idSpectacle){
-        $query = "SELECT * FROM Spectacle s
-                INNER JOIN SpectacleOrganisateur so ON s.idSpectacle = so.idSpectacle
-                INNER JOIN Utilisateur u ON so.idUtilisateur = u.idUtilisateur 
-                INNER JOIN SpectacleDeFestival sdf ON f.idFestival = sdf.idFestival
-                INNER JOIN CategorieSpectacle cs ON s.categorie = cs.idCategorie
-                WHERE s.idSpectacle  = :idSpectacle ";
+        $query = "SELECT s.idSpectacle, s.titre, s.description, s.duree, cs.nomCategorie as categorie, s.illustration, 
+                u.prenom as prenomOrganisateur , u.nom as nomOrganisateur
+                FROM Spectacle s
+                LEFT JOIN SpectacleOrganisateur so ON s.idSpectacle = so.idSpectacle
+                LEFT JOIN Utilisateur u ON so.idUtilisateur = u.idUtilisateur
+                LEFT JOIN CategorieSpectacle cs ON s.categorie = cs.idCategorie
+                WHERE s.idSpectacle = :idSpectacle ";
 
         $stmt = $pdo->prepare($query);
         $stmt->bindParam(":idSpectacle", $idSpectacle);
 
         $stmt->execute();
 
-        $spectacle = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $spectacle = $stmt->fetch();
 
         return $spectacle;
     }

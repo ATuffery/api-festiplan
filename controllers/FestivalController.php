@@ -14,9 +14,9 @@ class FestivalController
     /**
      * Get all the festivals
      * @param \PDO $pdo the database connection
-     * @return View the data in json format
+     * @return View|null the data in json format
      */
-    public function all(\PDO $pdo) {
+    public function all(\PDO $pdo): ?View {
         HttpHelper::checkMethod("GET");
 
         try {
@@ -28,6 +28,8 @@ class FestivalController
         } catch (\PDOException $e) {
             Error::err(500, "Base de données injoignable.");
         }
+
+        return null;
     }
 
     /**
@@ -42,7 +44,8 @@ class FestivalController
             Error::err(400, "ApiKey manquant.");
         }
 
-        $user_apiKey = HttpHelper::getParam();
+        $user_apiKey = (string) HttpHelper::getParam();
+        $user_id = 0;
         try {
             $user_id = FavoriService::getUserId($pdo, $user_apiKey);
         } catch (\PDOException $e) {
@@ -56,8 +59,6 @@ class FestivalController
             $view->setVar("json", $infos);
             return $view;
         } catch (\PDOException $e) {
-            var_dump($e);
-            die();
             Error::err(500, "Base de données injoignable.");
         }
     }
@@ -65,16 +66,16 @@ class FestivalController
     /**
      * Get the details of a festival
      * @param \PDO $pdo the database connection
-     * @return View the festival data in json format
+     * @return View|null the festival data in json format
      */
-    public function detailsFestival(\PDO $pdo) {
+    public function detailsFestival(\PDO $pdo): View|null {
         HttpHelper::checkMethod("GET");
 
         if (is_null(HttpHelper::getParam())) {
             Error::err(400, "L'id du festival est manquant.");
         }
         try {
-            $infos = ConsultService::detailsFestival($pdo, HttpHelper::getParam());
+            $infos = ConsultService::detailsFestival($pdo, (int) HttpHelper::getParam());
             $view = new View("api");
             $view->setVar("http_code", 200);
             $view->setVar("json", $infos );
@@ -82,21 +83,23 @@ class FestivalController
         } catch (\PDOException $e) {
             Error::err(500, "Base de données injoignable.");
         }
+
+        return null;
     }
 
     /**
      * Get the details of a festival
      * @param \PDO $pdo the database connection
-     * @return View the festival data in json format
+     * @return View|null the festival data in json format
      */
-    public function detailsShow(\PDO $pdo) {
+    public function detailsShow(\PDO $pdo): View|null {
         HttpHelper::checkMethod("GET");
 
         if (is_null(HttpHelper::getParam())) {
             Error::err(400, "L'id du spectacle est manquant.");
         }
         try {
-            $infos = ConsultService::detailsShow($pdo, HttpHelper::getParam());
+            $infos = ConsultService::detailsShow($pdo, (int) HttpHelper::getParam());
             $view = new View("api");
             $view->setVar("http_code", 200);
             $view->setVar("json", $infos );
@@ -104,6 +107,8 @@ class FestivalController
         } catch (\PDOException $e) {
             Error::err(500, "Base de données injoignable.");
         }
+
+        return null;
     }
 
 
@@ -111,9 +116,9 @@ class FestivalController
     /**
      * Allow a user to connect to the app via his login and password
      * @param \PDO $pdo the database connection
-     * @return View the festival data in json format
+     * @return View|null the festival data in json format
      */
-    public function connexion(\PDO $pdo){
+    public function connexion(\PDO $pdo): View|null {
 //        HttpHelper::checkMethod("POST");
         HttpHelper::checkMethod("GET");
 
@@ -125,29 +130,32 @@ class FestivalController
             Error::err(400, "Aucun mot de passe n'a été envoyé.");
         }
 
-        $login = HttpHelper::getParam(0);
-        $password = HttpHelper::getParam(1);
+        $login = (string) HttpHelper::getParam(0);
+        $password = (string) HttpHelper::getParam(1);
 
+        $user = null;
         try {
             $user = AuthService::connexion($pdo, $login, $password);
         } catch (\PDOException $e) {
             Error::err(500, "Base de donnée inacéssible. (co)");
         }
 
-        if (is_null($user) || empty($user)) {
+        $user_apiKey = "";
+        if (empty($user)) {
             Error::err(401, "Identifiant ou mot de passe incorrect.");
         } else {
+            $user_id = (int) $user["idUtilisateur"];
+            $user_apiKey = (string) $user["apiKey"];
             try {
-                AuthService::addApiKey($user, $pdo);
+                AuthService::addApiKey($pdo, $user_id);
             } catch (\PDOException $e) {
-                var_dump($e);
                 Error::err(500, "Base de donnée inacéssible. (api)");
             }
         }
 
         $view = new View("api");
         $view->setVar("http_code", 200);
-        $view->setVar("json", $user["apiKey"]);
+        $view->setVar("json", $user_apiKey);
 
         return $view;
     }
@@ -170,27 +178,28 @@ class FestivalController
             Error::err(400, "ApiKey invalide.");
         }
 
-        $festival_id = HttpHelper::getParam(0);
-        $user_apiKey = HttpHelper::getParam(1);
+        $festival_id = (int) HttpHelper::getParam(0);
+        $user_apiKey = (string) HttpHelper::getParam(1);
 
+        $user_id = 0;
         try {
             $user_id = FavoriService::getUserId($pdo, $user_apiKey);
         } catch (\PDOException $e) {
             Error::err(500, "Base de donnée inacéssible.");
         }
 
-        if (is_null($user_id)) {
+        if ($user_id == 0) {
             Error::err(401, "ApiKey invalide.");
         }
 
         try {
             FavoriService::addFavori($pdo, $festival_id, $user_id);
-        } catch (\RuntimeException $e) {
-            Error::err(400, $e->getMessage());
-
         } catch (\PDOException $e) {
             Error::err(500, "Base de donnée inacéssible.");
+        } catch (\RuntimeException $e) {
+            Error::err(400, $e->getMessage());
         }
+
 
         $view = new View("api");
         $view->setVar("http_code", 200);
@@ -217,24 +226,23 @@ class FestivalController
             Error::err(400, "ApiKey invalide.");
         }
 
-        $festival_id = HttpHelper::getParam(0);
-        $user_apiKey = HttpHelper::getParam(1);
+        $festival_id = (int) HttpHelper::getParam(0);
+        $user_apiKey = (string) HttpHelper::getParam(1);
 
+        $user_id = 0;
         try {
             $user_id = FavoriService::getUserId($pdo, $user_apiKey);
         } catch (\PDOException $e) {
             Error::err(500, "Base de donnée inacéssible.");
         }
 
-        if (is_null($user_id)) {
+        if ($user_id == 0) {
             Error::err(401, "ApiKey invalide.");
         }
 
         try {
             FavoriService::removeFavoris($pdo, $festival_id, $user_id);
         } catch (\PDOException $e) {
-            var_dump($e);
-            die();
             Error::err(500, "Base de donnée inacéssible.");
         }
 

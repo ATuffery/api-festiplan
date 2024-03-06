@@ -9,10 +9,10 @@ class AuthService {
      * @param \PDO $pdo
      * @param string $login
      * @param string $password
-     * @return mixed
+     * @return array{ idUtilisateur: int, apiKey: string }
      */
-    public static function connexion(\PDO $pdo, string $login, string $password): mixed {
-        $query = "SELECT * FROM utilisateur WHERE login = :login AND mdp = :password";
+    public static function connexion(\PDO $pdo, string $login, string $password): array {
+        $query = "SELECT idUtilisateur, apiKey FROM utilisateur WHERE login = :login AND mdp = :password";
 
         $stmt = $pdo->prepare($query);
         $stmt->bindParam(":login", $login);
@@ -20,22 +20,24 @@ class AuthService {
 
         $stmt->execute();
 
-        $user = $stmt->fetch();
+        $data = $stmt->fetchAll()[0];
 
-        return $user;
+        $return_data = array();
+        $return_data["idUtilisateur"] = $data["idUtilisateur"];
+        $return_data["apiKey"] = $data["apiKey"];
+
+        return $return_data;
     }
 
     /**
      * Add an API key to the user
-     * @param array{ idUtilisateur: int } $user the user
      * @param \PDO $pdo the database connection
+     * @param int $user_id the user
      * @return void
      */
-    public static function addApiKey(array $user, \PDO $pdo): void {
+    public static function addApiKey(\PDO $pdo, int $user_id): void {
 
         $apiKeyGen = self::generateApiKey();
-
-        $user_id = $user['idUtilisateur'];
 
         $insert_apiKey_query = "UPDATE utilisateur SET apiKey = '$apiKeyGen' WHERE idUtilisateur = $user_id";
 
