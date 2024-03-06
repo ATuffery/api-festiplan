@@ -11,7 +11,7 @@ class Router {
      * Create the right controller and call the right method
      * in function of the url parameters.
      */
-    public static function route(DataBase $dataBase = null) {
+    public static function route(DataBase $dataBase = null): void {
         $path = HttpHelper::getUrlParams();
 
         /** 
@@ -35,6 +35,7 @@ class Router {
         $controllerName = "ApiFestiplan\\controllers\\" . $controller_name;
         $controller = new $controllerName();
 
+        $view = null;
         if (is_null($dataBase)) {
             $view = $controller->$method_name();
         } else {

@@ -6,26 +6,26 @@ use ApiFestiplan\utils\Error;
 
 class HttpHelper {
 
-    /** 
+    /**
      * Get the all url parameters
-     * @param string | null the link to analyse
-     * @return string | null all the url parameters or null if no parameters found 
+     * @param string|null $path  the link to analyse
+     * @return string|null all the url parameters or null if no parameters found
      */
-    public static function getUrlParams(string $path = null):string | null {
+    public static function getUrlParams(string $path = null): string | null {
         $path = is_null($path) && isset($_GET['p']) ? $_GET['p'] : $path;
         return !is_null($path) && !empty($path) ? htmlspecialchars($path) : null;
     }
 
     /** 
      * Get the controller name in the url parameters or in POST parameters
-     * @param string | null the link to analyse
+     * @param string|null $path the link to analyse
      * @return string | null the controller name or null if not found 
      */
     public static function getControllerName(string $path = null):string | null {
         //Try to find the controller name in the URL params
         $path = is_null($path) && isset($_GET['p']) ? $_GET['p'] : $path;
         $params = explode("/", $path ?? "");
-        $controller_name = count($params) > 0 && !empty($params[0]) ? htmlspecialchars($params[0]) : "";
+        $controller_name = !empty($params[0]) ? htmlspecialchars($params[0]) : "";
         
         if (!empty($controller_name)) {
             return $controller_name;
@@ -67,14 +67,19 @@ class HttpHelper {
     }
 
     /** 
-     * Get parmeters of url
-     * @param string | null the link to analyse
-     * @return string | null all the parameters or null if no parameters found 
+     * Get parameters of url
+     * @param string | null $path the link to analyse
+     * @return array<string> | null the parameters or null if not found
      */
-    public static function getParams(string $path = null):array | null {
+    public static function getParams(string $path = null): array | null {
         $path = is_null($path) && isset($_GET['p']) ? $_GET['p'] : $path;
         $str_params = explode("/", $path, 3);
-        return count($str_params) > 2 && !empty($str_params[2]) ? explode("/", htmlspecialchars($str_params[2])) : null;
+        if (count($str_params) > 2 && !empty($str_params[2])) {
+            return explode("/", htmlspecialchars($str_params[2]));
+        }
+
+        return null;
+//        return count($str_params) > 2 && !empty($str_params[2]) ? explode("/", htmlspecialchars($str_params[2])) : null;
     }
 
     /**
@@ -88,7 +93,7 @@ class HttpHelper {
         if (is_null(self::getParams())) {
             return false;
         }
-        $valToTest =  $noParam < count(self::getParams()) ? self::getParams()[$noParam] : null;
+        $valToTest =  $noParam < count((array)self::getParams()) ? ((array)self::getParams())[$noParam] : null;
         return !empty($valToTest);
     }
 
@@ -98,8 +103,8 @@ class HttpHelper {
      * @param int $noParam the position of the param in the URL
      * @return string|null the param if exists, null otherwise.
      */
-    public static function getParam(int $noParam = 0):string|null {
-        return self::paramGetExists($noParam) ? htmlspecialchars(self::getParams()[$noParam]) : null;
+    public static function getParam(int $noParam = 0): string | null {
+        return self::paramGetExists($noParam) ? htmlspecialchars( ((array)self::getParams())[$noParam] ) : null;
     }
 
     /**

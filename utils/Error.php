@@ -11,7 +11,7 @@ class Error {
      * @param int $code the error code
      * @param string $msg the error message
      */
-    public static function err(int $code, string $msg) {
+    public static function err(int $code, string $msg): void {
         $view = new View("api");
         $view->setVar("http_code", $code);
         $view->setVar("json", ['error', htmlspecialchars($msg)]);

@@ -6,8 +6,16 @@ use ApiFestiplan\utils\Error;
 
 class View {
 
+    /**
+     * The path of the view file
+     * @var string
+     */
     private string $path;
 
+    /**
+     * The variables that will be used in the view
+     * @var array{}
+     */
     private array $vars;
 
     /**
