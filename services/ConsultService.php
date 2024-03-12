@@ -10,8 +10,8 @@ class ConsultService {
      */
     public static function consultListFestival(\PDO $pdo): array|bool {
         $query = "SELECT f.idFestival, f.titre, cf.nom as categorie, f.description, f.dateDebut, f.dateFin, f.illustration 
-                FROM Festival f
-                INNER JOIN CategorieFestival cf ON f.categorie = cf.idCategorie";
+                FROM festival f
+                INNER JOIN categoriefestival cf ON f.categorie = cf.idCategorie";
 
         $stmt = $pdo->prepare($query);
 
@@ -29,10 +29,10 @@ class ConsultService {
     public static function consultListFavoriteFestival(\PDO $pdo, int $idUtilisateur): array|bool
     {
         $query = "SELECT f.idFestival, f.titre, cf.nom as categorie, f.description, f.dateDebut, f.dateFin, f.illustration 
-                FROM Festival f
-                INNER JOIN Favori ON f.idFestival = Favori.idFestival
-                INNER JOIN CategorieFestival cf ON f.categorie = cf.idCategorie 
-                INNER JOIN Utilisateur u ON Favori.idUtilisateur = u.idUtilisateur
+                FROM festival f
+                INNER JOIN favori ON f.idFestival = Favori.idFestival
+                INNER JOIN categoriefestival cf ON f.categorie = cf.idCategorie 
+                INNER JOIN utilisateur u ON Favori.idUtilisateur = u.idUtilisateur
                 WHERE u.idUtilisateur = :idUtilisateur
                 ORDER BY dateDebut";
 
@@ -55,13 +55,13 @@ class ConsultService {
                 eo.responsable, u.prenom, u.nom, 
                 s.titre as titreSpectacle, s.description as descriptionSpectacle, s.duree as dureeSpectacle, 
                 s.illustration as illustrationSpectacle, cs.nomCategorie as categorieSpectacle
-                FROM Festival f
-                LEFT JOIN EquipeOrganisatrice eo ON f.idFestival = eo.idFestival
-                LEFT JOIN Utilisateur u ON eo.idUtilisateur = u.idUtilisateur 
-                LEFT JOIN SpectacleDeFestival sdf ON f.idFestival = sdf.idFestival
-                LEFT JOIN Spectacle s ON sdf.idSpectacle = s.idSpectacle
-                LEFT JOIN CategorieSpectacle cs ON s.categorie = cs.idCategorie
-                LEFT JOIN CategorieFestival cf ON f.categorie = cf.idCategorie
+                FROM festival f
+                LEFT JOIN equipeorganisatrice eo ON f.idFestival = eo.idFestival
+                LEFT JOIN utilisateur u ON eo.idUtilisateur = u.idUtilisateur 
+                LEFT JOIN spectacledefestival sdf ON f.idFestival = sdf.idFestival
+                LEFT JOIN spectacle s ON sdf.idSpectacle = s.idSpectacle
+                LEFT JOIN categoriespectacle cs ON s.categorie = cs.idCategorie
+                LEFT JOIN categoriefestival cf ON f.categorie = cf.idCategorie
                 WHERE f.idFestival = :idFestival";
 
         $stmt = $pdo->prepare($query);
@@ -84,9 +84,9 @@ class ConsultService {
         $query = "SELECT s.idSpectacle, s.titre, s.description, s.duree, cs.nomCategorie as categorie, s.illustration, 
                 u.prenom as prenomOrganisateur , u.nom as nomOrganisateur
                 FROM Spectacle s
-                LEFT JOIN SpectacleOrganisateur so ON s.idSpectacle = so.idSpectacle
-                LEFT JOIN Utilisateur u ON so.idUtilisateur = u.idUtilisateur
-                LEFT JOIN CategorieSpectacle cs ON s.categorie = cs.idCategorie
+                LEFT JOIN spectacleorganisateur so ON s.idSpectacle = so.idSpectacle
+                LEFT JOIN utilisateur u ON so.idUtilisateur = u.idUtilisateur
+                LEFT JOIN categoriespectacle cs ON s.categorie = cs.idCategorie
                 WHERE s.idSpectacle = :idSpectacle ";
 
         $stmt = $pdo->prepare($query);

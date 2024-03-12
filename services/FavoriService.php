@@ -21,7 +21,7 @@ class FavoriService {
 
 
     public static function addFavori(\PDO $pdo, int $idFestival, int $idUser): void {
-        $query = "INSERT INTO Favori (idUtilisateur, idFestival) VALUES (:idUtilisateur, :idFestival)";
+        $query = "INSERT INTO favori (idUtilisateur, idFestival) VALUES (:idUtilisateur, :idFestival)";
 
         $stmt = $pdo->prepare($query);
         $stmt->bindParam(":idUtilisateur", $idUser);
@@ -35,7 +35,7 @@ class FavoriService {
     }
 
     public static function removeFavoris(\PDO $pdo, int $idFestival, int $idUser): void {
-        $query = "DELETE FROM Favori WHERE idUtilisateur = :idUtilisateur AND idFestival = :idFestival";
+        $query = "DELETE FROM favori WHERE idUtilisateur = :idUtilisateur AND idFestival = :idFestival";
 
         $stmt = $pdo->prepare($query);
         $stmt->bindParam(":idUtilisateur", $idUser);
