@@ -35,10 +35,17 @@ class ConsultServiceTest extends TestCase
             $result = $this->consultService::consultListFestival($this->pdo);
             // Then les festivals s'affiche dans l'ordre de représentation
             // (les festivals à venir les plus proches en premier, suivis de ceux qui auront lieu plus tard)
-            $dateDebut = $result->fetch();
+            $premiereLigne = $result->fetch();
+            $dateDebut = $premiereLigne["dateDebut"];
+            $isOrdered = true;
             foreach ($result as $festival){
-                if(strtotime($dateDebut) )
+                if(strtotime($dateDebut) <= strtotime($festival["dateDebut"])){
+                    $dateDebut = $festival["dateDebut"];
+                } else {
+                    $isOrdered = false;
+                }
             }
+            $this->assertTrue($isOrdered);
             $this->pdo->rollBack();
         } catch (\PDOException $e) {
             $this->pdo->rollBack();

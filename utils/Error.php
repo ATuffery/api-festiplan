@@ -14,7 +14,7 @@ class Error {
     public static function err(int $code, string $msg): void {
         $view = new View("api");
         $view->setVar("http_code", $code);
-        $view->setVar("json", ['error', htmlspecialchars($msg)]);
+        $view->setVar("json", json_encode(['error', htmlspecialchars($msg)]));
         $view->render();
         exit;
     }
