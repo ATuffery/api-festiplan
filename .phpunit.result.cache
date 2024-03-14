@@ -1,0 +1,1 @@
+{"version":1,"defects":{"services\\AuthServiceTest::testAuthentification":8,"services\\AuthServiceTest::testAuthentificationWrongPassword":8,"services\\AuthServiceTest::testAddApiKey":8},"times":[]}

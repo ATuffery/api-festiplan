@@ -20,6 +20,10 @@ class AuthService {
 
         $stmt->execute();
 
+        if ($stmt->rowCount() == 0) {
+            return array();
+        }
+
         $data = $stmt->fetchAll()[0];
 
         $return_data = array();
@@ -33,9 +37,9 @@ class AuthService {
      * Add an API key to the user
      * @param \PDO $pdo the database connection
      * @param int $user_id the user
-     * @return void
+     * @return string
      */
-    public static function addApiKey(\PDO $pdo, int $user_id): void {
+    public static function addApiKey(\PDO $pdo, int $user_id): string {
 
         $apiKeyGen = self::generateApiKey();
 
@@ -44,6 +48,8 @@ class AuthService {
         $stmt = $pdo->prepare($insert_apiKey_query);
 
         $stmt->execute();
+
+        return $apiKeyGen;
     }
 
     /**

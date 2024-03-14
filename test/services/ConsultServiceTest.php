@@ -32,8 +32,13 @@ class ConsultServiceTest extends TestCase
             $this->pdo->beginTransaction();
             // Given une base de données connectée avec plusieurs festivals
             // When on affiche tout les festival
+            $result = $this->consultService::consultListFestival($this->pdo);
             // Then les festivals s'affiche dans l'ordre de représentation
             // (les festivals à venir les plus proches en premier, suivis de ceux qui auront lieu plus tard)
+            $dateDebut = $result->fetch();
+            foreach ($result as $festival){
+                if(strtotime($dateDebut) )
+            }
             $this->pdo->rollBack();
         } catch (\PDOException $e) {
             $this->pdo->rollBack();

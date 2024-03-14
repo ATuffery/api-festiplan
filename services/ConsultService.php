@@ -11,7 +11,8 @@ class ConsultService {
     public static function consultListFestival(\PDO $pdo): array|bool {
         $query = "SELECT f.idFestival, f.titre, cf.nom as categorie, f.description, f.dateDebut, f.dateFin, f.illustration 
                 FROM festival f
-                INNER JOIN categoriefestival cf ON f.categorie = cf.idCategorie";
+                INNER JOIN categoriefestival cf ON f.categorie = cf.idCategorie
+                ORDER BY f.dateDebut";
 
         $stmt = $pdo->prepare($query);
 
@@ -34,7 +35,7 @@ class ConsultService {
                 INNER JOIN categoriefestival cf ON f.categorie = cf.idCategorie 
                 INNER JOIN utilisateur u ON Favori.idUtilisateur = u.idUtilisateur
                 WHERE u.idUtilisateur = :idUtilisateur
-                ORDER BY dateDebut";
+                ORDER BY f.dateDebut";
 
         $stmt = $pdo->prepare($query);
         $stmt->bindParam(":idUtilisateur", $idUtilisateur);

@@ -137,7 +137,7 @@ class FestivalController
         try {
             $user = AuthService::connexion($pdo, $login, $password);
         } catch (\PDOException $e) {
-            Error::err(500, "Base de donnée inacéssible. (co)");
+            Error::err(500, "Base de donnée inacessible. (co)");
         }
 
         $user_apiKey = "";
@@ -145,17 +145,17 @@ class FestivalController
             Error::err(401, "Identifiant ou mot de passe incorrect.");
         } else {
             $user_id = (int) $user["idUtilisateur"];
-            $user_apiKey = (string) $user["apiKey"];
             try {
-                AuthService::addApiKey($pdo, $user_id);
+                $user_apiKey = (string) AuthService::addApiKey($pdo, $user_id);
+                $user["apiKey"] = $user_apiKey;
             } catch (\PDOException $e) {
-                Error::err(500, "Base de donnée inacéssible. (api)");
+                Error::err(500, "Base de donnée inacessible. (api)");
             }
         }
 
         $view = new View("api");
         $view->setVar("http_code", 200);
-        $view->setVar("json", $user_apiKey);
+        $view->setVar("json", $user);
 
         return $view;
     }
@@ -248,7 +248,7 @@ class FestivalController
 
         $view = new View("api");
         $view->setVar("http_code", 200);
-        $view->setVar("json", "Festival supprimé des favoris.");
+        $view->setVar("json", array("message" => "Festival supprimé des favoris."));
 
         return $view;
 
