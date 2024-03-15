@@ -28,7 +28,7 @@ class FestivalController
             $infos = ConsultService::consultListFestival($pdo, $apiKey);
             $view = new View("api");
             $view->setVar("http_code", 200);
-            $view->setVar("json", $infos);
+            $view->setVar("json", array("festivals" => $infos));
             return $view;
         } catch (\PDOException $e) {
             Error::err(500, "Base de données injoignable.");
