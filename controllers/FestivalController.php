@@ -19,8 +19,13 @@ class FestivalController
     public function all(\PDO $pdo): ?View {
         HttpHelper::checkMethod("GET");
 
+        $apiKey = "";
+        if (!is_null(HttpHelper::getParam())) {
+            $apiKey = (string) HttpHelper::getParam();
+        }
+
         try {
-            $infos = ConsultService::consultListFestival($pdo);
+            $infos = ConsultService::consultListFestival($pdo, $apiKey);
             $view = new View("api");
             $view->setVar("http_code", 200);
             $view->setVar("json", $infos);

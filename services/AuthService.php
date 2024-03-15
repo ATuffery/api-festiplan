@@ -9,7 +9,7 @@ class AuthService {
      * @param \PDO $pdo
      * @param string $login
      * @param string $password
-     * @return array{ idUtilisateur: int, apiKey: string }
+     * @return array{ idUtilisateur: int, apiKey: string } | array{}
      */
     public static function connexion(\PDO $pdo, string $login, string $password): array {
         $query = "SELECT idUtilisateur, apiKey FROM utilisateur WHERE login = :login AND mdp = :password";

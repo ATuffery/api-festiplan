@@ -9,3 +9,17 @@ ALTER TABLE Favori
 
 ALTER TABLE Favori
     ADD FOREIGN KEY (idFestival) REFERENCES Festival (idFestival);
+
+
+CREATE TRIGGER festival_d
+BEFORE DELETE ON festival
+FOR EACH ROW
+BEGIN
+    DELETE FROM equipeorganisatrice WHERE equipeorganisatrice.idFestival = OLD.idFestival;
+    DELETE FROM favori WHERE favori.idFestival = OLD.idFestival;
+    DELETE FROM jour WHERE jour.idGrij = (SELECT idGrij from grij where grij.idGrij = old.idFestival);
+    DELETE FROM grij WHERE grij.idGrij = OLD.idFestival;
+    DELETE FROM spectacledefestival WHERE spectacledefestival.idFestival = OLD.idFestival;
+    DELETE FROM spectaclescenes WHERE spectaclescenes.idFestival = OLD.idFestival;
+    DELETE FROM spectaclesjour WHERE spectaclesjour.idFestival = OLD.idFestival;
+end;
