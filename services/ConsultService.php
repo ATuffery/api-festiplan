@@ -10,16 +10,21 @@ class ConsultService {
      * @return array<array{idFestival:int, titre:string, categorie:string, description:string, dateDebut:string, dateFin:string, illustration:string}>|bool
      */
     public static function consultListFestival(\PDO $pdo, string $apiKey): array|bool {
+        $user_id = AuthService::getUserId($pdo, $apiKey);
+
+        if (is_null($user_id)) {
+            return false;
+        }
 
         $query = "SELECT f.idFestival, f.titre, cf.nom as categorie, f.description, f.dateDebut, f.dateFin, f.illustration, 
-                    EXISTS(SELECT * FROM favori WHERE idFestival = f.idFestival AND idUtilisateur = (SELECT idUtilisateur FROM utilisateur WHERE apiKey = :apiKey)) as isFavorite
-                FROM festival f
-                INNER JOIN categoriefestival cf ON f.categorie = cf.idCategorie
-                ORDER BY f.dateDebut";
+                EXISTS(SELECT * FROM favori WHERE idFestival = f.idFestival AND idUtilisateur = :user_id) as isFavorite
+            FROM festival f
+            INNER JOIN categoriefestival cf ON f.categorie = cf.idCategorie
+            ORDER BY f.dateDebut";
 
         $stmt = $pdo->prepare($query);
 
-        $stmt->bindParam(":apiKey", $apiKey);
+        $stmt->bindParam(":user_id", $user_id);
 
         $stmt->execute();
 

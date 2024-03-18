@@ -27,6 +27,10 @@ class FestivalController
 
         try {
             $infos = ConsultService::consultListFestival($pdo, $apiKey);
+            if ($infos === false) {
+                Error::err(401, "API Key invalide.");
+            }
+
             $view = new View("api");
             $view->setVar("http_code", 200);
             $view->setVar("json", array("festivals" => $infos));
