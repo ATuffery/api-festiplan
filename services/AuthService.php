@@ -64,16 +64,17 @@ class AuthService {
      * Get the user id from the API key
      * @param \PDO $pdo the database connection
      * @param string $apiKey the API key
-     * @return array[idUtilisateur:int] | null the user id or null if not found
+     * @return mixed the user id or null if not found
      */
-    public static function getUserId(\PDO $pdo, string $apiKey) : array|null
+    public static function getUserId(\PDO $pdo, string $apiKey) : mixed
     {
         try {
             $query = "SELECT idUtilisateur FROM utilisateur WHERE apiKey = :apiKey";
             $stmt = $pdo->prepare($query);
             $stmt->bindParam(":apiKey", $apiKey);
             $stmt->execute();
-            return $stmt->rowCount() == 0 ? null : (array) $stmt->fetch()["idUtilisateur"];
+            $retour = (array) $stmt->fetch();
+            return $stmt->rowCount() == 0 ? null : $retour["idUtilisateur"];
         } catch (\PDOException $e) {
             return null;
         }
