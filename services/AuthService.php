@@ -59,4 +59,23 @@ class AuthService {
     private static function generateApiKey(): string {
         return bin2hex(random_bytes(35));
     }
+
+    /**
+     * Get the user id from the API key
+     * @param \PDO $pdo the database connection
+     * @param string $apiKey the API key
+     * @return mixed|null the user id or null if not found
+     */
+    public static function getUserId(\PDO $pdo, string $apiKey) : mixed
+    {
+        try {
+            $query = "SELECT idUtilisateur FROM utilisateur WHERE apiKey = :apiKey";
+            $stmt = $pdo->prepare($query);
+            $stmt->bindParam(":apiKey", $apiKey);
+            $stmt->execute();
+            return $stmt->rowCount() == 0 ? null : $stmt->fetch()["idUtilisateur"];
+        } catch (\PDOException $e) {
+            return null;
+        }
+    }
 }

@@ -18,14 +18,19 @@ class FestivalController
      */
     public function all(\PDO $pdo): ?View {
         HttpHelper::checkMethod("GET");
-
-        $apiKey = "";
+        
         if (!is_null(HttpHelper::getParam())) {
             $apiKey = (string) HttpHelper::getParam();
+        } else {
+            Error::err(401, "API Key manquante.");
         }
 
         try {
             $infos = ConsultService::consultListFestival($pdo, $apiKey);
+            if ($infos === false) {
+                Error::err(401, "API Key invalide.");
+            }
+
             $view = new View("api");
             $view->setVar("http_code", 200);
             $view->setVar("json", array("festivals" => $infos));
