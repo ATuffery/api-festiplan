@@ -19,11 +19,11 @@ class FestivalController
     public function all(\PDO $pdo): ?View {
         HttpHelper::checkMethod("GET");
         
-        if (!is_null(HttpHelper::getParam())) {
-            $apiKey = (string) HttpHelper::getParam();
-        } else {
+        if (is_null(HttpHelper::getParam())) {
             Error::err(401, "API Key manquante.");
         }
+
+        $apiKey = (string) HttpHelper::getParam();
 
         try {
             $infos = ConsultService::consultListFestival($pdo, $apiKey);
