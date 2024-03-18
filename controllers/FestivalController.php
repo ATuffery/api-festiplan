@@ -18,10 +18,11 @@ class FestivalController
      */
     public function all(\PDO $pdo): ?View {
         HttpHelper::checkMethod("GET");
-
-        $apiKey = "";
+        
         if (!is_null(HttpHelper::getParam())) {
             $apiKey = (string) HttpHelper::getParam();
+        } else {
+            Error::err(401, "API Key manquante.");
         }
 
         try {
