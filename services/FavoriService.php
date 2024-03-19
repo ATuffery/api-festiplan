@@ -41,6 +41,11 @@ class FavoriService {
         $stmt->bindParam(":idUtilisateur", $idUser);
         $stmt->bindParam(":idFestival", $idFestival);
 
-        $stmt->execute();
+        try {
+            $stmt->execute();
+
+        } catch (\PDOException $e) {
+            throw new \RuntimeException("Ce festival n'existe pas ou il n'est pas en favoris.");
+        }
     }
 }

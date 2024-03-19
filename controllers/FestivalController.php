@@ -14,10 +14,9 @@ class FestivalController
     /**
      * Get all the festivals
      * @param \PDO $pdo the database connection
-     * @param string|null $apiKey the api key
      * @return View|null the data in json format
      */
-    public function all(\PDO $pdo, string $apiKey = null): ?View {
+    public function all(\PDO $pdo): ?View {
         HttpHelper::checkMethod("GET");
         
         if (is_null(HttpHelper::getParam())) {
@@ -97,31 +96,6 @@ class FestivalController
 
         return null;
     }
-
-    /**
-     * Get the details of a festival
-     * @param \PDO $pdo the database connection
-     * @return View|null the festival data in json format
-     */
-    public function detailsShow(\PDO $pdo): View|null {
-        HttpHelper::checkMethod("GET");
-
-        if (is_null(HttpHelper::getParam())) {
-            Error::err(400, "L'id du spectacle est manquant.");
-        }
-        try {
-            $infos = ConsultService::detailsShow($pdo, (int) HttpHelper::getParam());
-            $view = new View("api");
-            $view->setVar("http_code", 200);
-            $view->setVar("json", $infos );
-            return $view;
-        } catch (\PDOException $e) {
-            Error::err(500, "Base de données injoignable.");
-        }
-
-        return null;
-    }
-
 
 
     /**
@@ -254,7 +228,7 @@ class FestivalController
         try {
             FavoriService::removeFavoris($pdo, $festival_id, $user_id);
         } catch (\PDOException $e) {
-            Error::err(500, "Base de donnée inacéssible.");
+            Error::err(400, $e->getMessage());
         }
 
         $view = new View("api");

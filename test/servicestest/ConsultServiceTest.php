@@ -4,6 +4,7 @@ namespace servicestest;
 
 require "../../mvc/DataBase.php";
 require "../../services/ConsultService.php";
+require "../../services/AuthService.php";
 
 use ApiFestiplan\mvc\DataBase;
 use PHPUnit\Framework\TestCase;
@@ -64,7 +65,7 @@ class ConsultServiceTest extends TestCase
         try {
             $this->pdo->beginTransaction();
             // Given une base de données connectée avec aucun festival
-            $sql = "DELETE FROM festival WHERE idFestival > 10";
+            $sql = "DELETE FROM festival WHERE idFestival > 0";
             $this->pdo->query($sql);
 
             // When on affiche tout les festival
@@ -148,28 +149,115 @@ class ConsultServiceTest extends TestCase
         }
     }
 
+
+    //
     public function testDetailsFestivalFullTable(){
         try {
             $this->pdo->beginTransaction();
             // Given une base de données connectée avec un festival
-            $sql = "INSERT INTO festival VALUES (1,1,'Festival test','description','2024-03-18', '2024-03-19','aaaa');
-                    INSERT INTO utilisateur VALUES (3,'prenom3','nom3','test3@test','test3','test3','ecef9bc7c00bac56615da543155fed2f20ad2eabfcf6882e4eda85ffedb76921216485'),
-                                                   (4,'prenom4','nom4','test4@test','test4','test4','ecef9bc7c00bac56615da543155fed2f20ad2eabfcf6882e4eda85ffedb76921216946');
-                    INSERT INTO equipeorganisatrice VALUES (3, 1, 1), (4, 1, 0);
-                    INSERT INTO spectacle VALUES (10, 'titreSpectacle1', 'descriptionSpectacle1', '00:20:00', 'aaa', 1, 1),
-                                                 (11, 'titreSpectacle2', 'descriptionSpectacle2', '00:20:00', 'aaa', 2, 2);
-                    INSERT INTO spectacledefestival VALUES (10, 1), (11, 1)";
-            $this->pdo->query($sql);
-            // When on affiche les details du festival
-            $result = $this->consultService::detailsFestival($this->pdo, 1);
-            // Then aucun festival ne s'afiche
+            $sql = "INSERT INTO festival VALUES (2,1,'Festival test','description','2024-03-18', '2024-03-19','aaaa');
+                    INSERT INTO utilisateur(idUtilisateur, prenom, nom, mail, login, mdp, apiKey) VALUES (6, 'prenom6','nom6','test6@test','test6','test6','165845qzfde6zr4fs3qf4e8gy4e6gsrth84f6gjnrtj7eyh85s6v4d6fh7tyu76tdgb458');
+                    INSERT INTO utilisateur(idUtilisateur, prenom, nom, mail, login, mdp, apiKey) VALUES (7, 'prenom7','nom7','test7@test','test7','test7','dze3s5et777777rh41bf5rtys6er87uhd63v1dr7hrte89dg64s6dwv4t8uhyt161dzerf');
+                    INSERT INTO equipeorganisatrice VALUES (6, 2, 1), (7, 2, 0);
+                    INSERT INTO spectacle VALUES (1, 'titreSpectacle1', 'descriptionSpectacle1', '00:20:00', 'aaa', 1, 1),
+                                                 (2, 'titreSpectacle2', 'descriptionSpectacle2', '00:20:00', 'aaa', 2, 2);
+                    INSERT INTO spectacledefestival VALUES (1, 2), (2, 2)";
+            $this->pdo->exec($sql);
 
+            // When on affiche les details du festival
+            $result = $this->consultService::detailsFestival($this->pdo, 2);
+
+            // Then le details s'affiche
+            $resultat = array(
+                'festival' => array(
+                    'idFestival' => '2',
+                    'categorie' => 'Musique',
+                    'titre' => 'Festival test',
+                    'description' => 'description',
+                    'dateDebut' => '2024-03-18',
+                    'dateFin' => '2024-03-19',
+                    'illustration' => 'aaaa'
+                ),
+                'equipe_organisatrice' => array(
+                    0 => Array (
+                        'responsable' => '1',
+                        'prenom' => 'prenom6',
+                        'nom' => 'nom6'
+                    ),
+                    1 => Array (
+                        'responsable' => '0',
+                        'prenom' => 'prenom7',
+                        'nom' => 'nom7'
+                    )
+                ),
+                'spectacles' => Array (
+                    0 => Array (
+                        'idSpectacle' => '1',
+                        'titreSpectacle' => 'titreSpectacle1',
+                        'descriptionSpectacle' => 'descriptionSpectacle1',
+                        'dureeSpectacle' => '00:20:00',
+                        'illustrationSpectacle' => 'aaa',
+                        'categorieSpectacle' => 'Concert' // Cette valeur doit correspondre à celle de votre base de données
+                    ),
+                    1 => Array (
+                        'idSpectacle' => '2',
+                        'titreSpectacle' => 'titreSpectacle2',
+                        'descriptionSpectacle' => 'descriptionSpectacle2',
+                        'dureeSpectacle' => '00:20:00',
+                        'illustrationSpectacle' => 'aaa',
+                        'categorieSpectacle' => 'Piece de theatre' // Cette valeur doit correspondre à celle de votre base de données
+                    )
+                )
+            );
+
+            self::assertEquals($resultat, $result);
             $this->pdo->rollBack();
         } catch (\PDOException $e) {
             $this->pdo->rollBack();
+            echo $e;
             $this->fail("La base de données n'est pas accessible", $e);
         }
 
     }
 
 }
+
+// Erreur lors de l'exécution de la requête SQL : SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'INSERT INTO utilisateur(idUtilisateur, prenom, nom, mail, login, mdp, apiKey) VA' at line 2
+
+
+//{"festival":{"idFestival":1,"categorie":"Musique","titre":"Festival test","description":"description","dateDebut":"2024-03-18","dateFin":"2024-03-19","illustration":"aaaa"},
+//"equipe_organisatrice":[{"responsable":1,"prenom":"prenom3","nom":"nom3"},
+//                        {"responsable":0,"prenom":"oui","nom":"oui"}],
+//"spectacles":[{"idSpectacle":10,"titreSpectacle":"titreSpectacle1","descriptionSpectacle":"descriptionSpectacle1","dureeSpectacle":"00:20:00","illustrationSpectacle":"aaa","categorieSpectacle":"Concert"},
+//              {"idSpectacle":11,"titreSpectacle":"titreSpectacle2","descriptionSpectacle":"descriptionSpectacle2","dureeSpectacle":"00:20:00","illustrationSpectacle":"aaa","categorieSpectacle":"Piece de theatre"}]}
+
+
+//Array (
+//     'festival' => Array (
+//-        'idFestival' => '2'
+//+        'idFestival' => 1
+//         'categorie' => 'Musique'
+//         'titre' => 'Festival test'
+//         'description' => 'description'
+//@@ @@
+//     )
+//     'equipe_organisatrice' => Array (
+//         0 => Array (
+//-            'responsable' => '1'
+//-            'prenom' => 'prenom6'
+//-            'nom' => 'nom6'
+//+            'responsable' => 1
+//+            'prenom' => 'prenom3'
+//+            'nom' => 'nom3'
+//         )
+//         1 => Array (
+//-            'responsable' => '0'
+//-            'prenom' => 'prenom7'
+//-            'nom' => 'nom7'
+//+            'responsable' => 0
+//+            'prenom' => 'oui'
+//+            'nom' => 'oui'
+//         )
+//     )
+//     'spectacles' => [...]
+// )

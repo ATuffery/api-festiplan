@@ -64,51 +64,47 @@ class ConsultService {
      * @return mixed
      */
     public static function detailsFestival(\PDO $pdo, int $idFestival): mixed {
-        $query = "SELECT f.idFestival, cf.nom as categorie, f.titre, f.description, f.dateDebut, f.dateFin, f.illustration, 
-                eo.responsable, u.prenom, u.nom, 
-                s.titre as titreSpectacle, s.description as descriptionSpectacle, s.duree as dureeSpectacle, 
-                s.illustration as illustrationSpectacle, cs.nomCategorie as categorieSpectacle
+        $query1 = "SELECT f.idFestival, cf.nom as categorie, f.titre, f.description, f.dateDebut, f.dateFin, f.illustration
                 FROM festival f
-                LEFT JOIN equipeorganisatrice eo ON f.idFestival = eo.idFestival
-                LEFT JOIN utilisateur u ON eo.idUtilisateur = u.idUtilisateur 
-                LEFT JOIN spectacledefestival sdf ON f.idFestival = sdf.idFestival
-                LEFT JOIN spectacle s ON sdf.idSpectacle = s.idSpectacle
-                LEFT JOIN categoriespectacle cs ON s.categorie = cs.idCategorie
-                LEFT JOIN categoriefestival cf ON f.categorie = cf.idCategorie
+                INNER JOIN categoriefestival cf ON f.categorie = cf.idCategorie
                 WHERE f.idFestival = :idFestival";
 
-        $stmt = $pdo->prepare($query);
-        $stmt->bindParam(":idFestival", $idFestival);
+        $stmt1 = $pdo->prepare($query1);
+        $stmt1->bindParam(":idFestival", $idFestival);
+        $stmt1->execute();
+        $festivalDetails = $stmt1->fetch();
 
-        $stmt->execute();
+        $query2 = "SELECT eo.responsable, u.prenom, u.nom
+                FROM equipeorganisatrice eo
+                INNER JOIN festival f ON f.idFestival = eo.idFestival
+                INNER JOIN utilisateur u ON eo.idUtilisateur = u.idUtilisateur 
+                WHERE f.idFestival = :idFestival";
 
-        $festival = $stmt->fetch();
+        $stmt2 = $pdo->prepare($query2);
+        $stmt2->bindParam(":idFestival", $idFestival);
+        $stmt2->execute();
+        $equipeOrganisatrice = $stmt2->fetchAll();
 
-        return $festival;
-    }
+        $query3 = "SELECT s.idSpectacle, s.titre as titreSpectacle, s.description as descriptionSpectacle, s.duree as dureeSpectacle, 
+                s.illustration as illustrationSpectacle, cs.nomCategorie as categorieSpectacle
+                FROM spectacle s
+                INNER JOIN spectacledefestival sdf ON sdf.idSpectacle = s.idSpectacle
+                INNER JOIN festival f ON f.idFestival = sdf.idFestival
+                INNER JOIN categoriespectacle cs ON s.categorie = cs.idCategorie
+                WHERE f.idFestival = :idFestival";
 
-    /**
-     * Retourne les details d'un spectacle
-     * @param \PDO $pdo
-     * @param int $idSpectacle
-     * @return mixed
-     */
-    public static function detailsShow(\PDO $pdo, int $idSpectacle){
-        $query = "SELECT s.idSpectacle, s.titre, s.description, s.duree, cs.nomCategorie as categorie, s.illustration, 
-                u.prenom as prenomOrganisateur , u.nom as nomOrganisateur
-                FROM Spectacle s
-                LEFT JOIN spectacleorganisateur so ON s.idSpectacle = so.idSpectacle
-                LEFT JOIN utilisateur u ON so.idUtilisateur = u.idUtilisateur
-                LEFT JOIN categoriespectacle cs ON s.categorie = cs.idCategorie
-                WHERE s.idSpectacle = :idSpectacle ";
+        $stmt3 = $pdo->prepare($query3);
+        $stmt3->bindParam(":idFestival", $idFestival);
+        $stmt3->execute();
+        $spectacles = $stmt3->fetchAll();
 
-        $stmt = $pdo->prepare($query);
-        $stmt->bindParam(":idSpectacle", $idSpectacle);
+        // Rassembler les résultats dans un tableau associatif
+        $result = array(
+            'festival' => $festivalDetails,
+            'equipe_organisatrice' => $equipeOrganisatrice,
+            'spectacles' => $spectacles
+        );
 
-        $stmt->execute();
-
-        $spectacle = $stmt->fetch();
-
-        return $spectacle;
+        return $result;
     }
 }
