@@ -2,6 +2,8 @@
 
 namespace services;
 
+use services\AuthService;
+
 class ConsultService {
     /**
      * Returns the list of all festivals

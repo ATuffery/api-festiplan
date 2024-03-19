@@ -26,7 +26,7 @@ class View {
         $path = "views/" . $path . ".php";
 
         if (!file_exists($path)) {
-            throw new \Exception("The view does not exist.");
+            throw new \Exception("The view does not exist. $path");
         }
 
         $this->path = $path;

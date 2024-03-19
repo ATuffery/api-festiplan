@@ -1,9 +1,10 @@
 <?php
 
-namespace services;
+namespace servicestest;
 
 use ApiFestiplan\mvc\DataBase;
 use PHPUnit\Framework\TestCase;
+use services\AuthService;
 
 require "../../mvc/DataBase.php";
 require "../../services/AuthService.php";

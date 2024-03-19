@@ -14,9 +14,10 @@ class FestivalController
     /**
      * Get all the festivals
      * @param \PDO $pdo the database connection
+     * @param string|null $apiKey the api key
      * @return View|null the data in json format
      */
-    public function all(\PDO $pdo): ?View {
+    public function all(\PDO $pdo, string $apiKey = null): ?View {
         HttpHelper::checkMethod("GET");
         
         if (is_null(HttpHelper::getParam())) {

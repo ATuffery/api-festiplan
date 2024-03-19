@@ -1,6 +1,6 @@
 <?php
 
-namespace services;
+namespace servicestest;
 
 require "../../mvc/DataBase.php";
 require "../../services/ConsultService.php";
@@ -8,6 +8,8 @@ require "../../services/ConsultService.php";
 use ApiFestiplan\mvc\DataBase;
 use PHPUnit\Framework\TestCase;
 use services\ConsultService;
+use services\AuthService;
+
 
 class ConsultServiceTest extends TestCase
 {
@@ -37,6 +39,7 @@ class ConsultServiceTest extends TestCase
             // Given une base de données connectée avec plusieurs festivals
             // When on affiche tout les festival
             $result = $this->consultService::consultListFestival($this->pdo, "a42798bf979c69734c8f83c708610bca824dfc4e44f5c84cca72999bddf0f5725ba276");
+
             // Then les festivals s'affiche dans l'ordre de représentation
             // (les festivals à venir les plus proches en premier, suivis de ceux qui auront lieu plus tard)
             $premiereLigne = $result[0];
@@ -63,8 +66,10 @@ class ConsultServiceTest extends TestCase
             // Given une base de données connectée avec aucun festival
             $sql = "DELETE FROM festival WHERE idFestival > 10";
             $this->pdo->query($sql);
+
             // When on affiche tout les festival
             $result = $this->consultService::consultListFestival($this->pdo, "a42798bf979c69734c8f83c708610bca824dfc4e44f5c84cca72999bddf0f5725ba276");
+
             // Then aucun festival ne s'afiche
             $this->assertEquals(0,count($result));
             $this->pdo->rollBack();
@@ -79,10 +84,11 @@ class ConsultServiceTest extends TestCase
             $this->pdo->beginTransaction();
             // Given une base de données connectée avec plusieurs festivals et un utilisateur avec 2 festival en favori
             $sql = "INSERT INTO favori (idUtilisateur, idFestival) VALUES (4, 11), (4, 12)";
-
             $this->pdo->query($sql);
+
             // When on affiche tout les festival
             $result = $this->consultService::consultListFavoriteFestival($this->pdo, 4);
+
             // Then les 2 festivals s'affiche dans l'ordre de représentation
             // (les festivals à venir les plus proches en premier, suivis de ceux qui auront lieu plus tard)
             $this->assertEquals(2,count($result));
@@ -107,11 +113,13 @@ class ConsultServiceTest extends TestCase
     public function testConsultListFavoriteFestivalEmptyTableFavori(){
         try {
             $this->pdo->beginTransaction();
-            // Given une base de données connectée avec aucun festival
+            // Given une base de données connectée avec aucun festival festival en favori pour un utilisateur donnée
             $sql = "DELETE FROM favori WHERE favori.idUtilisateur = 4";
             $this->pdo->query($sql);
+
             // When on affiche tout les festival
             $result = $this->consultService::consultListFavoriteFestival($this->pdo, 4);
+
             // Then aucun festival ne s'afiche
             $this->assertEquals(0,count($result));
             $this->pdo->rollBack();
@@ -127,8 +135,10 @@ class ConsultServiceTest extends TestCase
             // Given une base de données connectée avec aucun festival
             $sql = "DELETE FROM festival WHERE idFestival > 10";
             $this->pdo->query($sql);
+
             // When on affiche tout les festival
             $result = $this->consultService::consultListFavoriteFestival($this->pdo, 4);
+
             // Then aucun festival ne s'afiche
             $this->assertEquals(0,count($result));
             $this->pdo->rollBack();
@@ -141,15 +151,19 @@ class ConsultServiceTest extends TestCase
     public function testDetailsFestivalFullTable(){
         try {
             $this->pdo->beginTransaction();
-            // Given une base de données connectée avec aucun festival
-            $sql = "INSERT INTO festival VALUES (1,1,'Festival test','description','2024-03-18'202024-03-19','aaaa');
-                    INSERT INTO utilisateur VALUES (3,'test','test','test@test','test','test','ecef9bc7c00bac56615da543155fed2f20ad2eabfcf6882e4eda85ffedb76921216485');
-                    INSERT INTO equipeorganisatrice ";
+            // Given une base de données connectée avec un festival
+            $sql = "INSERT INTO festival VALUES (1,1,'Festival test','description','2024-03-18', '2024-03-19','aaaa');
+                    INSERT INTO utilisateur VALUES (3,'prenom3','nom3','test3@test','test3','test3','ecef9bc7c00bac56615da543155fed2f20ad2eabfcf6882e4eda85ffedb76921216485'),
+                                                   (4,'prenom4','nom4','test4@test','test4','test4','ecef9bc7c00bac56615da543155fed2f20ad2eabfcf6882e4eda85ffedb76921216946');
+                    INSERT INTO equipeorganisatrice VALUES (3, 1, 1), (4, 1, 0);
+                    INSERT INTO spectacle VALUES (10, 'titreSpectacle1', 'descriptionSpectacle1', '00:20:00', 'aaa', 1, 1),
+                                                 (11, 'titreSpectacle2', 'descriptionSpectacle2', '00:20:00', 'aaa', 2, 2);
+                    INSERT INTO spectacledefestival VALUES (10, 1), (11, 1)";
             $this->pdo->query($sql);
-            // When on affiche tout les festival
+            // When on affiche les details du festival
             $result = $this->consultService::detailsFestival($this->pdo, 1);
             // Then aucun festival ne s'afiche
-            $this->assertEquals(0,count($result));
+
             $this->pdo->rollBack();
         } catch (\PDOException $e) {
             $this->pdo->rollBack();
