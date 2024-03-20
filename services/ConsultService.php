@@ -63,16 +63,22 @@ class ConsultService {
      * @param int $idFestival
      * @return mixed
      */
-    public static function detailsFestival(\PDO $pdo, int $idFestival): mixed {
-        $query1 = "SELECT f.idFestival, cf.nom as categorie, f.titre, f.description, f.dateDebut, f.dateFin, f.illustration
+    public static function detailsFestival(\PDO $pdo, int $idFestival, int $userId): mixed {
+        $query1 = "SELECT f.idFestival, cf.nom as categorie, f.titre, f.description, f.dateDebut, f.dateFin, f.illustration,
+                EXISTS(SELECT * FROM favori WHERE idFestival = f.idFestival AND idUtilisateur = :user_id) as isFavorite
                 FROM festival f
                 INNER JOIN categoriefestival cf ON f.categorie = cf.idCategorie
                 WHERE f.idFestival = :idFestival";
 
         $stmt1 = $pdo->prepare($query1);
         $stmt1->bindParam(":idFestival", $idFestival);
+        $stmt1->bindParam(":user_id", $userId);
         $stmt1->execute();
         $festivalDetails = $stmt1->fetch();
+
+        if (!$festivalDetails) {
+            throw new \RuntimeException("Ce festival n'existe pas.");
+        }
 
         $query2 = "SELECT eo.responsable, u.prenom, u.nom
                 FROM equipeorganisatrice eo

@@ -85,14 +85,20 @@ class FestivalController
             Error::err(400, "L'id du festival est manquant.");
         }
         try {
-            $infos = ConsultService::detailsFestival($pdo, (int) HttpHelper::getParam());
+            $user_id = FavoriService::getUserId($pdo, (string) HttpHelper::getParam(1));
+            $infos = ConsultService::detailsFestival($pdo, (int) HttpHelper::getParam(0), $user_id);
             $view = new View("api");
             $view->setVar("http_code", 200);
             $view->setVar("json", $infos );
             return $view;
         } catch (\PDOException $e) {
+            var_dump($e->getMessage());
+            die();
             Error::err(500, "Base de données injoignable.");
+        } catch (\RuntimeException $e1) {
+            Error::err(400, $e1->getMessage());
         }
+
 
         return null;
     }

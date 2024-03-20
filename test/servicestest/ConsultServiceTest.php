@@ -38,22 +38,19 @@ class ConsultServiceTest extends TestCase
         try {
             $this->pdo->beginTransaction();
             // Given une base de données connectée avec plusieurs festivals
-            // When on affiche tout les festival
+
+            // When on affiche tous les festivals
             $result = $this->consultService::consultListFestival($this->pdo, "a42798bf979c69734c8f83c708610bca824dfc4e44f5c84cca72999bddf0f5725ba276");
 
-            // Then les festivals s'affiche dans l'ordre de représentation
+            // Then les festivals s'affichent dans l'ordre de représentation
             // (les festivals à venir les plus proches en premier, suivis de ceux qui auront lieu plus tard)
             $premiereLigne = $result[0];
             $dateDebut = $premiereLigne["dateDebut"];
-            $isOrdered = true;
+
             foreach ($result as $festival){
-                if(strtotime($dateDebut) <= strtotime($festival["dateDebut"])){
-                    $dateDebut = $festival["dateDebut"];
-                } else {
-                    $isOrdered = false;
-                }
+                self::assertTrue(strtotime($dateDebut) <= strtotime($festival["dateDebut"]));
+                $dateDebut = $festival["dateDebut"];
             }
-            $this->assertTrue($isOrdered);
             $this->pdo->rollBack();
         } catch (\PDOException $e) {
             $this->pdo->rollBack();
@@ -68,10 +65,10 @@ class ConsultServiceTest extends TestCase
             $sql = "DELETE FROM festival WHERE idFestival > 0";
             $this->pdo->query($sql);
 
-            // When on affiche tout les festival
+            // When on affiche tous les festivals
             $result = $this->consultService::consultListFestival($this->pdo, "a42798bf979c69734c8f83c708610bca824dfc4e44f5c84cca72999bddf0f5725ba276");
 
-            // Then aucun festival ne s'afiche
+            // Then aucun festival ne s'affiche
             $this->assertEquals(0,count($result));
             $this->pdo->rollBack();
         } catch (\PDOException $e) {
@@ -83,27 +80,23 @@ class ConsultServiceTest extends TestCase
     public function testConsultListFavoriteFestivalFullTable(){
         try {
             $this->pdo->beginTransaction();
-            // Given une base de données connectée avec plusieurs festivals et un utilisateur avec 2 festival en favori
+            // Given une base de données connectée avec plusieurs festivals et un utilisateur avec 2 festivals en favori
             $sql = "INSERT INTO favori (idUtilisateur, idFestival) VALUES (4, 11), (4, 12)";
             $this->pdo->query($sql);
 
-            // When on affiche tout les festival
+            // When on affiche tous les festivals favoris de l'utilisateur
             $result = $this->consultService::consultListFavoriteFestival($this->pdo, 4);
 
-            // Then les 2 festivals s'affiche dans l'ordre de représentation
+            // Then les 2 festivals s'affichent dans l'ordre de représentation
             // (les festivals à venir les plus proches en premier, suivis de ceux qui auront lieu plus tard)
             $this->assertEquals(2,count($result));
             $premiereLigne = $result[0];
             $dateDebut = $premiereLigne["dateDebut"];
-            $isOrdered = true;
+
             foreach ($result as $festival){
-                if(strtotime($dateDebut) <= strtotime($festival["dateDebut"])){
-                    $dateDebut = $festival["dateDebut"];
-                } else {
-                    $isOrdered = false;
-                }
+                self::assertTrue(strtotime($dateDebut) <= strtotime($festival["dateDebut"]));
+                $dateDebut = $festival["dateDebut"];
             }
-            $this->assertTrue($isOrdered);
             $this->pdo->rollBack();
         } catch (\PDOException $e) {
             $this->pdo->rollBack();
@@ -114,14 +107,14 @@ class ConsultServiceTest extends TestCase
     public function testConsultListFavoriteFestivalEmptyTableFavori(){
         try {
             $this->pdo->beginTransaction();
-            // Given une base de données connectée avec aucun festival festival en favori pour un utilisateur donnée
+            // Given une base de données connectée avec aucun festival favori pour un utilisateur donné
             $sql = "DELETE FROM favori WHERE favori.idUtilisateur = 4";
             $this->pdo->query($sql);
 
-            // When on affiche tout les festival
+            // When on affiche tous les festivals favoris de l'utilisateur
             $result = $this->consultService::consultListFavoriteFestival($this->pdo, 4);
 
-            // Then aucun festival ne s'afiche
+            // Then aucun festival ne s'affiche
             $this->assertEquals(0,count($result));
             $this->pdo->rollBack();
         } catch (\PDOException $e) {
@@ -137,10 +130,10 @@ class ConsultServiceTest extends TestCase
             $sql = "DELETE FROM festival WHERE idFestival > 10";
             $this->pdo->query($sql);
 
-            // When on affiche tout les festival
+            // When on affiche tous les festivals favoris de l'utilisateur
             $result = $this->consultService::consultListFavoriteFestival($this->pdo, 4);
 
-            // Then aucun festival ne s'afiche
+            // Then aucun festival ne s'affiche
             $this->assertEquals(0,count($result));
             $this->pdo->rollBack();
         } catch (\PDOException $e) {
@@ -164,10 +157,10 @@ class ConsultServiceTest extends TestCase
                     INSERT INTO spectacledefestival VALUES (1, 2), (2, 2)";
             $this->pdo->exec($sql);
 
-            // When on affiche les details du festival
-            $result = $this->consultService::detailsFestival($this->pdo, 2);
+            // When on affiche les détails du festival
+            $result = $this->consultService::detailsFestival($this->pdo, 2, 6);
 
-            // Then le details s'affiche
+            // Then les détails s'affichent correctement
             $resultat = array(
                 'festival' => array(
                     'idFestival' => '2',
@@ -176,7 +169,8 @@ class ConsultServiceTest extends TestCase
                     'description' => 'description',
                     'dateDebut' => '2024-03-18',
                     'dateFin' => '2024-03-19',
-                    'illustration' => 'aaaa'
+                    'illustration' => 'aaaa',
+                    'isFavorite' => '0'
                 ),
                 'equipe_organisatrice' => array(
                     0 => Array (
@@ -197,7 +191,7 @@ class ConsultServiceTest extends TestCase
                         'descriptionSpectacle' => 'descriptionSpectacle1',
                         'dureeSpectacle' => '00:20:00',
                         'illustrationSpectacle' => 'aaa',
-                        'categorieSpectacle' => 'Concert' // Cette valeur doit correspondre à celle de votre base de données
+                        'categorieSpectacle' => 'Concert'
                     ),
                     1 => Array (
                         'idSpectacle' => '2',
@@ -205,7 +199,7 @@ class ConsultServiceTest extends TestCase
                         'descriptionSpectacle' => 'descriptionSpectacle2',
                         'dureeSpectacle' => '00:20:00',
                         'illustrationSpectacle' => 'aaa',
-                        'categorieSpectacle' => 'Piece de theatre' // Cette valeur doit correspondre à celle de votre base de données
+                        'categorieSpectacle' => 'Piece de theatre'
                     )
                 )
             );
@@ -220,44 +214,30 @@ class ConsultServiceTest extends TestCase
 
     }
 
+    public function testDetailsFestivalWithNonExistentFestival()
+    {
+        try {
+            $this->pdo->beginTransaction();
+            // Given une base de données connectée avec des festivals
+            $sql = "DELETE FROM festival WHERE idFestival = 1;
+                    DELETE FROM equipeorganisatrice WHERE idFestival = 1;
+                    DELETE FROM spectacledefestival WHERE idFestival = 1";
+            $this->pdo->exec($sql);
+
+            // When on affiche les détails d'un festival qui n'existe pas
+            // Then une erreur est renvoyé
+            try {
+                $this->consultService::detailsFestival($this->pdo, 1, 1);
+                $this->fail("Ce festival n'existe pas. Une erreur aurait dû être renvoyée.");
+            } catch (\RuntimeException $expected) {
+                $this->assertEquals("Ce festival n'existe pas.", $expected->getMessage());
+            }
+
+            $this->pdo->rollBack();
+        } catch (\PDOException $e) {
+            $this->pdo->rollBack();
+            $this->fail("La base de données n'est pas accessible", $e);
+        }
+    }
+
 }
-
-// Erreur lors de l'exécution de la requête SQL : SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'INSERT INTO utilisateur(idUtilisateur, prenom, nom, mail, login, mdp, apiKey) VA' at line 2
-
-
-//{"festival":{"idFestival":1,"categorie":"Musique","titre":"Festival test","description":"description","dateDebut":"2024-03-18","dateFin":"2024-03-19","illustration":"aaaa"},
-//"equipe_organisatrice":[{"responsable":1,"prenom":"prenom3","nom":"nom3"},
-//                        {"responsable":0,"prenom":"oui","nom":"oui"}],
-//"spectacles":[{"idSpectacle":10,"titreSpectacle":"titreSpectacle1","descriptionSpectacle":"descriptionSpectacle1","dureeSpectacle":"00:20:00","illustrationSpectacle":"aaa","categorieSpectacle":"Concert"},
-//              {"idSpectacle":11,"titreSpectacle":"titreSpectacle2","descriptionSpectacle":"descriptionSpectacle2","dureeSpectacle":"00:20:00","illustrationSpectacle":"aaa","categorieSpectacle":"Piece de theatre"}]}
-
-
-//Array (
-//     'festival' => Array (
-//-        'idFestival' => '2'
-//+        'idFestival' => 1
-//         'categorie' => 'Musique'
-//         'titre' => 'Festival test'
-//         'description' => 'description'
-//@@ @@
-//     )
-//     'equipe_organisatrice' => Array (
-//         0 => Array (
-//-            'responsable' => '1'
-//-            'prenom' => 'prenom6'
-//-            'nom' => 'nom6'
-//+            'responsable' => 1
-//+            'prenom' => 'prenom3'
-//+            'nom' => 'nom3'
-//         )
-//         1 => Array (
-//-            'responsable' => '0'
-//-            'prenom' => 'prenom7'
-//-            'nom' => 'nom7'
-//+            'responsable' => 0
-//+            'prenom' => 'oui'
-//+            'nom' => 'oui'
-//         )
-//     )
-//     'spectacles' => [...]
-// )
