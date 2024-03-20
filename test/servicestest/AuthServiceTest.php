@@ -86,5 +86,4 @@ class AuthServiceTest extends TestCase {
             $this->fail("La base de données n'est pas accessible");
         }
     }
-
 }

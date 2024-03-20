@@ -54,6 +54,21 @@ class FavoriServiceTest extends TestCase
 
     }
 
+    public function testAddFavoriExistePas()
+    {
+        try {
+            $this->pdo->beginTransaction();
+            FavoriService::addFavori($this->pdo, 0, 0);
+            $this->fail("Le festival n'existe pas ou l'utilisateur n'existe pas");
+        } catch (\RuntimeException $e) {
+            $this->pdo->rollBack();
+            $this->assertEquals("Ce festival n'existe pas ou il est déjà en favoris.", $e->getMessage());
+        } catch (\PDOException $e) {
+            $this->pdo->rollBack();
+            $this->fail("La base de données n'est pas accessible");
+        }
+    }
+
     public function testGetUserId()
     {
         try {
@@ -69,6 +84,19 @@ class FavoriServiceTest extends TestCase
 
     }
 
+    public function testGetUserIdWrongApiKey()
+    {
+        try {
+            $this->pdo->beginTransaction();
+            $result = FavoriService::getUserId($this->pdo, "wrongApiKey");
+            $this->assertIsInt($result);
+            $this->equalTo(0, $result);
+            $this->pdo->rollBack();
+        } catch (\PDOException $e) {
+            $this->pdo->rollBack();
+            $this->fail("La base de données n'est pas accessible");
+        }
+    }
     public function testRemoveFavoris()
     {
         try {
@@ -90,5 +118,19 @@ class FavoriServiceTest extends TestCase
             $this->fail("La base de données n'est pas accessible");
         }
 
+    }
+
+    public function testRemoveFavorisExistePas()
+    {
+        try {
+            $this->pdo->beginTransaction();
+            FavoriService::removeFavoris($this->pdo, 0, 0);
+        } catch (\RuntimeException $e) {
+            $this->pdo->rollBack();
+            $this->fail("Si le festival n'existe pas, il n'y a pas d'erreur car le DELETE ne se fait pas");
+        } catch (\PDOException $e) {
+            $this->pdo->rollBack();
+            $this->fail("La base de données n'est pas accessible");
+        }
     }
 }

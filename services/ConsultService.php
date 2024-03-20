@@ -8,15 +8,10 @@ class ConsultService {
     /**
      * Returns the list of all festivals
      * @param \PDO $pdo
-     * @param string $apiKey
+     * @param int $user_id
      * @return array<array{idFestival:int, titre:string, categorie:string, description:string, dateDebut:string, dateFin:string, illustration:string}>|bool
      */
-    public static function consultListFestival(\PDO $pdo, string $apiKey): array|bool {
-        $user_id = AuthService::getUserId($pdo, $apiKey);
-
-        if (is_null($user_id)) {
-            return false;
-        }
+    public static function consultListFestival(\PDO $pdo, int $user_id): array|bool {
 
         $query = "SELECT f.idFestival, f.titre, cf.nom as categorie, f.description, f.dateDebut, f.dateFin, f.illustration, 
                 EXISTS(SELECT * FROM favori WHERE idFestival = f.idFestival AND idUtilisateur = :user_id) as isFavorite

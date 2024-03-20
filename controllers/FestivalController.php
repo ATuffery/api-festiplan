@@ -18,15 +18,21 @@ class FestivalController
      */
     public function all(\PDO $pdo): ?View {
         HttpHelper::checkMethod("GET");
-        
+
         if (is_null(HttpHelper::getParam())) {
-            Error::err(401, "API Key manquante.");
+            Error::err(400, "ApiKey manquant.");
         }
 
-        $apiKey = (string) HttpHelper::getParam();
+        $user_apiKey = (string) HttpHelper::getParam();
+        $user_id = 0;
+        try {
+            $user_id = FavoriService::getUserId($pdo, $user_apiKey);
+        } catch (\PDOException $e) {
+            Error::err(500, "ApiKey invalide.");
+        }
 
         try {
-            $infos = ConsultService::consultListFestival($pdo, $apiKey);
+            $infos = ConsultService::consultListFestival($pdo, $user_id);
             if ($infos === false) {
                 Error::err(401, "API Key invalide.");
             }
@@ -92,8 +98,6 @@ class FestivalController
             $view->setVar("json", $infos );
             return $view;
         } catch (\PDOException $e) {
-            var_dump($e->getMessage());
-            die();
             Error::err(500, "Base de données injoignable.");
         } catch (\RuntimeException $e1) {
             Error::err(400, $e1->getMessage());

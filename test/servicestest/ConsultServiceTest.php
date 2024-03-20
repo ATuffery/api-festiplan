@@ -40,7 +40,7 @@ class ConsultServiceTest extends TestCase
             // Given une base de données connectée avec plusieurs festivals
 
             // When on affiche tous les festivals
-            $result = $this->consultService::consultListFestival($this->pdo, "a42798bf979c69734c8f83c708610bca824dfc4e44f5c84cca72999bddf0f5725ba276");
+            $result = $this->consultService::consultListFestival($this->pdo, 4);
 
             // Then les festivals s'affichent dans l'ordre de représentation
             // (les festivals à venir les plus proches en premier, suivis de ceux qui auront lieu plus tard)
@@ -66,7 +66,7 @@ class ConsultServiceTest extends TestCase
             $this->pdo->query($sql);
 
             // When on affiche tous les festivals
-            $result = $this->consultService::consultListFestival($this->pdo, "a42798bf979c69734c8f83c708610bca824dfc4e44f5c84cca72999bddf0f5725ba276");
+            $result = $this->consultService::consultListFestival($this->pdo, 4);
 
             // Then aucun festival ne s'affiche
             $this->assertEquals(0,count($result));
