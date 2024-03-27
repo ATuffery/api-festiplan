@@ -2,9 +2,9 @@
 
 namespace servicestest;
 
-require "../../mvc/DataBase.php";
-require "../../services/FavoriService.php";
-require "../../services/AuthService.php";
+// require "../../mvc/DataBase.php";
+// require "../../services/FavoriService.php";
+// require "../../services/AuthService.php";
 
 use services\FavoriService;
 use ApiFestiplan\mvc\DataBase;
@@ -125,12 +125,30 @@ class FavoriServiceTest extends TestCase
         try {
             $this->pdo->beginTransaction();
             FavoriService::removeFavoris($this->pdo, 0, 0);
-        } catch (\RuntimeException $e) {
+    
+            $this->expectNotToPerformAssertions();
             $this->pdo->rollBack();
-            $this->fail("Si le festival n'existe pas, il n'y a pas d'erreur car le DELETE ne se fait pas");
+        } catch (\Exception $e) {
+            // Le test échoue si une exception est levée
+            $this->pdo->rollBack();
+            $this->fail("Le test a échoué car une exception a été levée lors de la tentative de suppression d'un favori inexistant.");
         } catch (\PDOException $e) {
             $this->pdo->rollBack();
             $this->fail("La base de données n'est pas accessible");
         }
     }
+
+    public function testRemoveFavorisThrowsException() {
+        $pdoMock = $this->createMock(\PDO::class);
+        $pdoStatementMock = $this->createMock(\PDOStatement::class);
+    
+        $pdoMock->method('prepare')->willReturn($pdoStatementMock);
+        $pdoStatementMock->method('execute')->will($this->throwException(new \PDOException()));
+    
+        $favoriService = new \services\FavoriService();
+    
+        $this->expectException(\RuntimeException::class);
+        $favoriService->removeFavoris($pdoMock, 0,0);
+    }
+
 }

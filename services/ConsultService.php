@@ -13,6 +13,7 @@ class ConsultService {
      */
     public static function consultListFestival(\PDO $pdo, int $user_id): array|bool {
 
+
         $query = "SELECT f.idFestival, f.titre, cf.nom as categorie, f.description, f.dateDebut, f.dateFin, f.illustration, 
                 EXISTS(SELECT * FROM favori WHERE idFestival = f.idFestival AND idUtilisateur = :user_id) as isFavorite
             FROM festival f
@@ -31,10 +32,10 @@ class ConsultService {
     /**
      * Returns the list of all favorite festivals
      * @param \PDO $pdo
-     * @param int $idUtilisateur
+     * @param int $user_id
      * @return array<array{idFestival:int, titre:string, categorie:string, description:string, dateDebut:string, dateFin:string, illustration:string}>|bool
      */
-    public static function consultListFavoriteFestival(\PDO $pdo, int $idUtilisateur): array|bool
+    public static function consultListFavoriteFestival(\PDO $pdo, int $user_id): array|bool
     {
         $query = "SELECT f.idFestival, f.titre, cf.nom as categorie, f.description, f.dateDebut, f.dateFin, f.illustration 
                 FROM festival f
@@ -45,7 +46,7 @@ class ConsultService {
                 ORDER BY f.dateDebut";
 
         $stmt = $pdo->prepare($query);
-        $stmt->bindParam(":idUtilisateur", $idUtilisateur);
+        $stmt->bindParam(":idUtilisateur", $user_id);
 
         $stmt->execute();
 
@@ -56,9 +57,10 @@ class ConsultService {
      * Retourne les details d'un festival
      * @param \PDO $pdo
      * @param int $idFestival
+     * @param int $user_id
      * @return mixed
      */
-    public static function detailsFestival(\PDO $pdo, int $idFestival, int $userId): mixed {
+    public static function detailsFestival(\PDO $pdo, int $idFestival, int $user_id): mixed {
         $query1 = "SELECT f.idFestival, cf.nom as categorie, f.titre, f.description, f.dateDebut, f.dateFin, f.illustration,
                 EXISTS(SELECT * FROM favori WHERE idFestival = f.idFestival AND idUtilisateur = :user_id) as isFavorite
                 FROM festival f
@@ -67,7 +69,7 @@ class ConsultService {
 
         $stmt1 = $pdo->prepare($query1);
         $stmt1->bindParam(":idFestival", $idFestival);
-        $stmt1->bindParam(":user_id", $userId);
+        $stmt1->bindParam(":user_id", $user_id);
         $stmt1->execute();
         $festivalDetails = $stmt1->fetch();
 

@@ -249,7 +249,4 @@ class FestivalController
 
     }
 
-
-
-
 }

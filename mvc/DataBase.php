@@ -2,6 +2,8 @@
 
 namespace ApiFestiplan\mvc;
 
+use PDO;
+
 class DataBase {
     
     private string $host;
@@ -32,18 +34,18 @@ class DataBase {
 
     /**
      * Connect to the database
-     * @return \PDO the connection to the database
+     * @return PDO the connection to the database
      */
     public function __connect() {
         $ds_name = "mysql:host=$this->host;port=$this->port;dbname=$this->db;charset=$this->charset";
         $options = [
-            \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-            \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
-            \PDO::ATTR_EMULATE_PREPARES => false,
-            \PDO::ATTR_PERSISTENT => true
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES => false,
+            PDO::ATTR_PERSISTENT => true
         ];
 
-        return new \PDO($ds_name, $this->user, $this->password, $options);
+        return new PDO($ds_name, $this->user, $this->password, $options);
     }
 
 }

@@ -2,9 +2,9 @@
 
 namespace servicestest;
 
-require "../../mvc/DataBase.php";
-require "../../services/ConsultService.php";
-require "../../services/AuthService.php";
+// require "../../mvc/DataBase.php";
+// require "../../services/ConsultService.php";
+// require "../../services/AuthService.php";
 
 use ApiFestiplan\mvc\DataBase;
 use PHPUnit\Framework\TestCase;
